@@ -6,42 +6,113 @@ from sqlalchemy import create_engine
 from eralchemy2 import render_er
 
 Base = declarative_base()
-
 class User(Base):
-    __tablename__ = 'User'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
+    __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
-    username = Column(String(250), nullable=False)
-    firstname = Column(String(200), nullable=False)
-    lastname = Column(String(200), nullable=False)
-    email = Column(String(200), nullable=False, unique=True)
+    fullname = Column(String)
+    password = Column(String)
+    email = Column(String)
+    preference_id = Column(Integer, ForeignKey('preference.id'))
+    preference = relationship("Preference")
 
-class Follower(Base):
-    __tablename__ = 'Follower'
+class Preference(Base):
+    __tablename__ = 'preference'
     id = Column(Integer, primary_key=True)
-    user_from_id = Column(Integer, ForeignKey('User.id'))
-    user_to_id = Column(Integer, ForeignKey('User.id'))
+    type = Column(String)
+    films_id = Column(Integer, ForeignKey('film.id'))
+    film = relationship("Film")
+    users = relationship("User", back_populates="preference")
 
-class Post(Base):
-    __tablename__ = 'Post'
+class People(Base):
+    __tablename__ = 'people'
     id = Column(Integer, primary_key=True)
-    photo_url = Column(String(350), nullable=False )
-    post_to_id = Column(Integer, ForeignKey('User.id'))
+    name = Column(String)
+    birth_year = Column(String)
+    films_id = Column(Integer, ForeignKey('film.id'))
+    gender = Column(String)
+    hair_color = Column(String)
+    height = Column(Integer)
+    homeworld_id = Column(Integer, ForeignKey('planet.id'))
+    mass = Column(Integer)
+    skin_color = Column(String)
+    edited = Column(Integer)
+    starships_id = Column(Integer, ForeignKey('starship_vehicles.id'))
+    vehicles_id = Column(Integer, ForeignKey('starship_vehicles.id'))
+    species_name = Column(String)
+    classification = Column(String)
+    designation = Column(String)
+    average_height = Column(String)
+    average_lifespan = Column(String)
+    eye_colors = Column(String)
+    hair_colors = Column(String)
+    language = Column(String)
+    homeworld = relationship("Planet")
+    films = relationship("Film", back_populates="characters")
+    starships = relationship("StarshipVehicle", foreign_keys=[starships_id])
+    vehicles = relationship("StarshipVehicle", foreign_keys=[vehicles_id])
 
-class Media(Base):
-    __tablename__ = 'Media'
+class Planet(Base):
+    __tablename__ = 'planet'
     id = Column(Integer, primary_key=True)
-    type = Column(Integer, nullable=False)
-    url = Column(String(350), nullable=False)
-    post_to_id = Column(Integer, ForeignKey('Post.id'))
+    name = Column(String)
+    climate = Column(String)
+    created = Column(Integer)
+    diameter = Column(Integer)
+    edited = Column(Integer)
+    films_id = Column(Integer, ForeignKey('film.id'))
+    gravity = Column(String)
+    orbital_period = Column(Integer)
+    population = Column(Integer)
+    residents = Column(String)
+    rotation_period = Column(Integer)
+    surface_water = Column(Integer)
+    terrain = Column(String)
+    url = Column(String)
+    films = relationship("Film", back_populates="planets")
 
-class Comment(Base):
-    __tablename__ = 'Comment'
+class Film(Base):
+    __tablename__ = 'film'
     id = Column(Integer, primary_key=True)
-    author_id = Column(Integer, ForeignKey('User.id'))
-    comment_text = Column(String(450), nullable=False)
-    post_id = Column(Integer, ForeignKey('Post.id'))
+    characters_id = Column(Integer, ForeignKey('people.id'))
+    created = Column(Integer)
+    director = Column(String)
+    episode_id = Column(Integer)
+    opening_crawl = Column(String)
+    planets_id = Column(Integer, ForeignKey('planet.id'))
+    producer = Column(String)
+    release_date = Column(Integer)
+    starships_id = Column(Integer, ForeignKey('starship_vehicles.id'))
+    title = Column(String)
+    url = Column(String)
+    vehicles_id = Column(Integer, ForeignKey('starship_vehicles.id'))
+    characters = relationship("People", back_populates="films")
+    planets = relationship("Planet", back_populates="films")
+    starships = relationship("StarshipVehicle", back_populates="films")
+    vehicles = relationship("StarshipVehicle", back_populates="films")
+
+class StarshipVehicle(Base):
+    __tablename__ = 'starship_vehicles'
+    id = Column(Integer, primary_key=True)
+    type_of_vehicle = Column(String)
+    name = Column(String)
+    model = Column(String)
+    manufacturer = Column(String)
+    cost_in_credits = Column(String)
+    length = Column(String)
+    passengers = Column(String)
+    max_atmosphering_speed = Column(String)
+    hyperdrive_rating = Column(String)
+    MGLT = Column(String)
+    cargo_capacity = Column(String)
+    consumables = Column(String)
+    films_id = Column(Integer, ForeignKey('film.id'))
+    pilot_id = Column(Integer, ForeignKey('people.id'))
+    crew = Column(String)
+    url = Column(String)
+    created = Column(String)
+    edited = Column(String)
+    films = relationship("Film", back_populates="starships")
+    pilot = relationship("People", back_populates="starships")
 
 
     def to_dict(self):
